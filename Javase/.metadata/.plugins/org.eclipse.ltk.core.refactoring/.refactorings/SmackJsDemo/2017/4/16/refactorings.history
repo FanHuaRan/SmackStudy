@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename package &apos;com.fhr.smackjsdemo.demo&apos; to &apos;com.fhr.smackjsdemo.test&apos;&#x0D;&#x0A;- Original project: &apos;SmackJsDemo&apos;&#x0D;&#x0A;- Original element: &apos;SmackJsDemo/src/com.fhr.smackjsdemo.demo&apos;&#x0D;&#x0A;- Renamed element: &apos;SmackJsDemo/src/com.fhr.smackjsdemo.test&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;com.fhr.smackjsdemo.demo&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/src&lt;com.fhr.smackjsdemo.demo" name="com.fhr.smackjsdemo.test" qualified="false" references="true" stamp="1492860849776" textual="false" version="1.0"/>
+</session>
