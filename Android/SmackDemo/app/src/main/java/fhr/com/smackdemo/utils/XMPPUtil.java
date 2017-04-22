@@ -84,11 +84,11 @@ public class XMPPUtil {
     /**
      * 服务器地址
      */
-    private static  final  String SERVERADDRESS="";
+    private static  final  String SERVERADDRESS="10.0.2.2";
     /**
      * 端口
      */
-    private static  final  int PORT=0;
+    private static  final  int PORT=5222;
     /**
      * 服务器名称
      */

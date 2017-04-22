@@ -2,9 +2,10 @@ package fhr.com.smackdemo.utils;
 
 import android.support.test.runner.AndroidJUnit4;
 
+import org.jivesoftware.smack.XMPPConnection;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import static  org.junit.Assert.*;
 /**
  * XMPP协议辅助测试类
  * 基于ASMACK开发包
@@ -16,7 +17,8 @@ import org.junit.runner.RunWith;
 public class XMPPUtilTest  {
     @Test
     public void testGetXMPPConnection(){
-
+         XMPPConnection xmppConnection=XMPPUtil.getXMPPConnection(null);
+         assertNotNull(xmppConnection);
     }
     @Test
     public void testGetXMPPConnectionFull(){
@@ -24,7 +26,10 @@ public class XMPPUtilTest  {
     }
     @Test
     public void testConnectServer(){
-
+        XMPPConnection xmppConnection=XMPPUtil.getXMPPConnection(null);
+        assertNotNull(xmppConnection);
+        boolean isConnect=XMPPUtil.connectServer(xmppConnection);
+        assertTrue(isConnect);
     }
     @Test
     public void testCloseConnection(){
@@ -35,11 +40,16 @@ public class XMPPUtilTest  {
 
     }
     @Test
-    public void testlogin(){
-
+    public void testLogin(){
+//        XMPPConnection xmppConnection=XMPPUtil.getXMPPConnection(null);
+//        assertNotNull(xmppConnection);
+//        boolean isConnect=XMPPUtil.connectServer(xmppConnection);
+//        assertTrue(isConnect);
+//        boolean isLogin=XMPPUtil.login(xmppConnection,"ranrandemo","admin123");
+//        assertTrue(isLogin);
     }
     @Test
-    public void testloginFull(){
+    public void testLoginFull(){
 
     }
     @Test
