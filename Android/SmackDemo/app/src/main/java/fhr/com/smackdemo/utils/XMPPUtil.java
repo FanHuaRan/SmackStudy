@@ -185,10 +185,8 @@ public class XMPPUtil {
         registration.setPassword(password);
         // 这边addAttribute不能为空，否则出错。所以做个标志是android手机创建的吧！！！！！
         registration.addAttribute("android", "fhr");
-        PacketFilter filter = new AndFilter(new PacketIDFilter(
-                registration.getPacketID()), new PacketTypeFilter(IQ.class));
-        PacketCollector collector = xmppConnection.createPacketCollector(
-                filter);
+        PacketFilter filter = new AndFilter(new PacketIDFilter(registration.getPacketID()), new PacketTypeFilter(IQ.class));
+        PacketCollector collector = xmppConnection.createPacketCollector(filter);
         xmppConnection.sendPacket(registration);
         IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
         // Stop queuing results停止请求results（是否成功的结果）
@@ -201,12 +199,10 @@ public class XMPPUtil {
             return 1;
         } else {
             if (result.getError().toString().equalsIgnoreCase("conflict(409)")) {
-                Log.e("regist", "IQ.Type.ERROR: "
-                        + result.getError().toString());
+                Log.e("regist", "IQ.Type.ERROR: " + result.getError().toString());
                 return 2;
             } else {
-                Log.e("regist", "IQ.Type.ERROR: "
-                        + result.getError().toString());
+                Log.e("regist", "IQ.Type.ERROR: " + result.getError().toString());
                 return 3;
             }
         }
@@ -506,8 +502,7 @@ public class XMPPUtil {
             vcard.setAvatar(bytes, encodedImage);
             vcard.setEncodedImage(encodedImage);
             vcard.setField("PHOTO", "<TYPE>image/jpg</TYPE><BINVAL>" + encodedImage + "</BINVAL>", true);
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    vcard.getAvatar());
+            //ByteArrayInputStream bais = new ByteArrayInputStream(vcard.getAvatar());
             vcard.save(xmppConnection);
             return true;
         } catch (Exception e) {
