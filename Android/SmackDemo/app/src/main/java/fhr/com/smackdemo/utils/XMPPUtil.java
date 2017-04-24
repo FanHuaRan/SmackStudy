@@ -244,10 +244,12 @@ public class XMPPUtil {
      * 设置用户状态
      * @param xmppConnection
      * @param type
+     * @param status
      * @return
      */
-    public  static boolean  setPresence(XMPPConnection xmppConnection,Presence.Type type){
+    public  static boolean  setPresence(XMPPConnection xmppConnection,Presence.Type type,String status){
         Presence presence=new Presence(type);
+        presence.setStatus(status);
         try{
             xmppConnection.sendPacket(presence);
             return true;
@@ -329,6 +331,7 @@ public class XMPPUtil {
      */
     public static Drawable getUserImage(XMPPConnection xmppConnection, String user) {
         ByteArrayInputStream bais = null;
+        Drawable bitmapDrawable=null;
         try {
             VCard vcard = new VCard();
             // 加入这句代码，解决No VCard for
@@ -341,12 +344,12 @@ public class XMPPUtil {
                 return null;
             }
             bais = new ByteArrayInputStream(vcard.getAvatar());
+            bitmapDrawable=new BitmapDrawable(bais);
+            bais.close();
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("getUserImage",e.getMessage());
-            return null;
         }
-        Drawable bitmapDrawable=new BitmapDrawable(bais);
         return  bitmapDrawable;
     }
     /**
@@ -453,7 +456,6 @@ public class XMPPUtil {
      * @throws XMPPException
      */
     public static List<HashMap<String, String>> searchUsers(XMPPConnection xmppConnection,String userName) {
-        HashMap<String, String> user = null;
         List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
         try {
             UserSearchManager usm = new UserSearchManager(xmppConnection);
@@ -463,10 +465,9 @@ public class XMPPUtil {
             answerForm.setAnswer("userPhote", userName);
             ReportedData data = usm.getSearchResults(answerForm, "search" + xmppConnection.getServiceName());
             Iterator<ReportedData.Row> it = data.getRows();
-            ReportedData.Row row = null;
             while (it.hasNext()) {
-                user = new HashMap<String, String>();
-                row = it.next();
+                HashMap<String, String> user = new HashMap<String, String>();
+                ReportedData.Row row = it.next();
                 user.put("userAccount", row.getValues("userAccount").next().toString());
                 user.put("userPhote", row.getValues("userPhote").next().toString());
                 results.add(user);

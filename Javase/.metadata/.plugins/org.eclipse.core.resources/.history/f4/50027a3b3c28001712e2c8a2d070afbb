@@ -1,0 +1,34 @@
+package com.fhr.smackjsdemo.utils;
+
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+
+/**
+ * 基于smack3.2下的封装
+ * @author fhr
+ * @date 2017/04/23
+ */
+public class XMPPUtil {
+	private static final String SERVERADDRESS="";
+	private static final int PORT=5222;
+	private static final String SERVERNAME="";
+	private static final ConnectionConfiguration CONFIGURATION;
+	static{
+		if(SERVERADDRESS!=null&&!SERVERADDRESS.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERADDRESS, PORT);
+		}
+		else if(SERVERNAME!=null&&!SERVERNAME.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERNAME);
+		}
+		else{
+			throw new Exception("field is ilegal");
+		}
+	}
+	public static  void ss(){
+		
+	};
+	public static XMPPConnection createXMPPConnection(){
+		ConnectionConfiguration config=ConnectionConfiguration
+		return new XMPPConnection(config);
+	}
+}

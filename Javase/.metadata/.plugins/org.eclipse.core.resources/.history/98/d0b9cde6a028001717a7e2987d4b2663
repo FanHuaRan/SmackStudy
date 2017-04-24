@@ -1,0 +1,377 @@
+package com.fhr.smackjsdemo.utils;
+
+import java.awt.Image;
+import java.io.ByteArrayInputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import javax.security.auth.login.Configuration;
+
+import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.packet.VCard;
+
+/**
+ * 基于smack3.2下的封装
+ * 参考一下：
+ * http://www.zuidaima.com/share/1816369152052224.htm
+ * http://blog.csdn.net/zhouzhiwengang/article/details/49706403
+ * @author fhr
+ * @date 2017/04/23
+ */
+public class XMPPUtil {
+	/**
+	 * 服务器地址
+	 */
+	private static final String SERVERADDRESS="";
+	/**
+	 * 服务器端口
+	 */
+	private static final int PORT=5222;
+	/**
+	 * 服务器名称
+	 */
+	private static final String SERVERNAME="";
+	/**
+	 * 连接配置对象
+	 */
+	private static final ConnectionConfiguration CONFIGURATION;
+	/**
+	 * 利用静态代码段进行配置对象的实例化
+	 */
+	static{
+		//地址+端口形式
+		if(SERVERADDRESS!=null&&!SERVERADDRESS.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERADDRESS, PORT);
+		}
+		//服务器名称形式
+		else if(SERVERNAME!=null&&!SERVERNAME.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERNAME);
+		}
+		else{
+			CONFIGURATION=null;
+		}
+	}
+	/**
+	 * 工厂模式获取XMPPConnection对象
+	 * @return
+	 */
+	public static XMPPConnection createXMPPConnection(){
+		if(CONFIGURATION!=null){
+			return new XMPPConnection(CONFIGURATION);
+		}
+		else{
+			return null;
+		}
+	}
+	/**
+	 * 连接到服务器
+	 * @param xmppConnection
+	 * @return
+	 */
+	public static boolean connectServer(XMPPConnection xmppConnection){
+		try {
+			xmppConnection.connect();
+			return true;
+		} catch (XMPPException e) {
+			return false;
+		}
+	}
+	/**
+	 * 释放xmppConnection
+	 * @param xmppConnection
+	 */
+	public static void relaseXMPPConnection(XMPPConnection xmppConnection){
+		if(xmppConnection.isConnected()){
+			xmppConnection.disconnect();
+		}
+	}
+	/**
+	 * 注册用户
+	 * @param xmppConnection
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static boolean regist(XMPPConnection xmppConnection,String userName,String password){
+		AccountManager accountManager=xmppConnection.getAccountManager();
+		try {
+			accountManager.createAccount(userName, password);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 登录
+	 * @param xmppConnection
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static boolean login(XMPPConnection xmppConnection,String userName,String password){
+		try {
+			if (!xmppConnection.isConnected()) {
+				xmppConnection.connect();
+			}
+			xmppConnection.login(userName, password);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 登录
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static XMPPConnection login(String userName,String password){
+		XMPPConnection xmppConnection = createXMPPConnection();
+		if (xmppConnection != null) {
+			try {
+				if (!xmppConnection.isConnected()) {
+					xmppConnection.connect();
+				}
+				xmppConnection.login(userName, password);
+			} catch (XMPPException e) {
+				e.printStackTrace();
+				xmppConnection = null;
+			}
+		}
+		return xmppConnection;
+	}
+	/**
+     * 设置用户状态
+     * @param xmppConnection
+     * @param type 状态
+     * @param status 状态描述
+     * @return
+     */
+    public  static boolean  setPresence(XMPPConnection xmppConnection,Presence.Type type,String status){
+        Presence presence=new Presence(type);
+        presence.setStatus(status);
+        try{
+            xmppConnection.sendPacket(presence);
+            return true;
+        }catch (Exception e){
+            return  false;
+        }
+    }
+	/**
+	 * 创建聊天
+	 * @param xmppConnection
+	 * @param toUser
+	 * @param messageListener
+	 * @return
+	 */
+	public static Chat createChat(XMPPConnection xmppConnection,String toUser,MessageListener messageListener){
+		// 获取当前登陆用户的聊天管理器 
+		ChatManager chatManager = xmppConnection.getChatManager();
+		// 为指定用户创建一个chat，MyMessageListeners用于监听对方发过来的消息  */
+	    Chat chat = chatManager.createChat(toUser+"@" + SERVERNAME, messageListener);
+	    return chat;
+	}
+	/**
+	 * 发送消息
+	 * @param chat
+	 * @param message
+	 * @return
+	 */
+	public static boolean sendMessage(Chat chat,String message){
+		try {
+			chat.sendMessage(message);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 获取所有好友
+	 * @param xmppConnection
+	 * @return
+	 */
+	public List<RosterEntry> getAllRosterEntry(XMPPConnection xmppConnection){
+		//获取花名册对象
+		Roster roster=xmppConnection.getRoster();
+		//获取所有好友
+		Collection<RosterEntry> rosterEntries=roster.getEntries();
+		return rosterEntries.stream().collect(Collectors.toList());
+	}
+	/**
+	 * 获取所有分组
+	 * @param xmppConnection
+	 * @return
+	 */
+	public List<RosterGroup> getAllRosterGroup(XMPPConnection xmppConnection){
+		Roster roster=xmppConnection.getRoster();
+		Collection<RosterGroup> rosterGroups=roster.getGroups();
+		return rosterGroups.stream().collect(Collectors.toList());
+	}
+	/**
+	 * 获取某个分组下的所有好友
+	 * @param xmppConnection
+	 * @param groupName
+	 * @return
+	 */
+	public List<RosterEntry> getRosterEntrysForGroup(XMPPConnection xmppConnection,String groupName){
+		// 获取花名册对象
+		Roster roster = xmppConnection.getRoster();
+		// 获取所有好友
+		RosterGroup rosterGroup = roster.getGroup(groupName);
+		Collection<RosterEntry> rosterEntries = rosterGroup.getEntries();
+		return rosterEntries.stream().collect(Collectors.toList());
+	}
+	 /**
+     * 获取用户VCard信息
+     * @param xmppConnection
+     * @param user
+     * @return
+     */
+    public static VCard getUserVCard(XMPPConnection xmppConnection,String user) {
+        try {
+            VCard vcard = new VCard();
+            vcard.load(xmppConnection,user);
+            return  vcard;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return  null;
+        }
+    }
+
+    /**
+     * 获取用户头像信息
+     * @param xmppConnection
+     * @param user
+     * @return
+     */
+    public static Image  getUserImage(XMPPConnection xmppConnection, String user) {
+        ByteArrayInputStream bais = null;
+        Image image=null;
+        try {
+            VCard vcard = new VCard();
+            // 加入这句代码，解决No VCard for
+            ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp", new org.jivesoftware.smackx.provider.VCardProvider());
+            if (user == null || user.equals("")) {
+                return null;
+            }
+            vcard.load(xmppConnection, user + "@" + xmppConnection.getServiceName());
+            if (vcard == null || vcard.getAvatar() == null){
+                return null;
+            }
+            bais = new ByteArrayInputStream(vcard.getAvatar());
+            image=ImageIO.read(bais);
+            bais.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  image;
+    }
+    /**
+     * 添加一个分组
+     * @param xmppConnection
+     * @param groupName
+     * @return
+     */
+    public static boolean addGroup(XMPPConnection xmppConnection,String groupName) {
+        try {
+            xmppConnection.getRoster().createGroup(groupName);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 删除分组 SMACK暂不支持
+     * @param xmppConnection
+     * @param groupName
+     * @return
+     */
+    public static boolean removeGroup(XMPPConnection xmppConnection,String groupName) {
+        return true;
+    }
+
+    /**
+     * 添加好友 无分组
+     * @param xmppConnection
+     * @param userName 用户名
+     * @param name 备注名
+     * @return
+     */
+    public static boolean addUserNoGroup(XMPPConnection xmppConnection,String userName, String name) {
+        try {
+            xmppConnection.getRoster().createEntry(userName, name, null);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 添加好友 有分组
+     * @param xmppConnection
+     * @param userName 用户名
+     * @param name 备注名
+     * @param groupName 分组名
+     * @return
+     */
+    public static boolean addUserHaveGroup(XMPPConnection xmppConnection,String userName, String name, String groupName) {
+        try {
+            Presence subscription = new Presence(Presence.Type.subscribed);
+            subscription.setTo(userName);
+            userName += "@" + xmppConnection.getServiceName();
+            xmppConnection.sendPacket(subscription);
+            xmppConnection.getRoster().createEntry(userName, name, new String[] { groupName });
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 删除好友
+     * @param xmppConnection
+     * @param userName
+     * @return
+     */
+    public static boolean removeUser(XMPPConnection xmppConnection,String userName) {
+        try {
+            RosterEntry entry = null;
+            if (userName.contains("@")){
+                entry = xmppConnection.getRoster().getEntry(
+                        userName + "@" + xmppConnection.getServiceName());
+            }else{
+                entry = xmppConnection.getRoster().getEntry(
+                        userName + "@" + xmppConnection.getServiceName());
+            }
+            if (entry == null){
+                entry = xmppConnection.getRoster().getEntry(userName);
+            }
+            xmppConnection.getRoster().removeEntry(entry);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+}

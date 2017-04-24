@@ -1,0 +1,33 @@
+package com.fhr.smackjsdemo.smackmodels;
+
+import org.jivesoftware.smack.XMPPConnection;
+
+import com.fhr.smackjsdemo.utils.XMPPUtil;
+
+/**
+ * XMPPConnection对象包装器
+ * @author fhr
+ * @date 2017/04/24 
+ */
+public class XMPPConnectionWrapper implements IXMPConnectionWrapper{
+	
+	private XMPPConnection xmppConnection;
+	
+	public XMPPConnectionWrapper(XMPPConnection xmppConnection){
+		this.setXmppConnection(xmppConnection);
+	}
+
+	public XMPPConnection getXmppConnection() {
+		return xmppConnection;
+	}
+
+	public void setXmppConnection(XMPPConnection xmppConnection) {
+		this.xmppConnection = xmppConnection;
+	}
+
+	@Override
+	public boolean login(String userName, String password) {
+		return XMPPUtil.login(xmppConnection, userName, password);
+	}
+	
+}

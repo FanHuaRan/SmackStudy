@@ -1,5 +1,696 @@
 package com.fhr.smackjsdemo.utils;
 
+import java.awt.Image;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+
+import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
+import org.jivesoftware.smackx.OfflineMessageManager;
+import org.jivesoftware.smackx.ReportedData;
+import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.packet.VCard;
+import org.jivesoftware.smackx.search.UserSearchManager;
+
+/**
+ * 基于smack3.2下的封装
+ * 参考一下：
+ * http://www.zuidaima.com/share/1816369152052224.htm
+ * http://blog.csdn.net/zhouzhiwengang/article/details/49706403
+ * @author fhr
+ * @date 2017/04/23
+ */
 public class XMPPUtil {
+	/**
+	 * 服务器地址
+	 */
+	private static final String SERVERADDRESS="";
+	/**
+	 * 服务器端口
+	 */
+	private static final int PORT=5222;
+	/**
+	 * 服务器名称
+	 */
+	private static final String SERVERNAME="";
+	/**
+	 * 连接配置对象
+	 */
+	private static final ConnectionConfiguration CONFIGURATION;
+	/**
+	 * 利用静态代码段进行配置对象的实例化
+	 */
+	static{
+		//地址+端口形式
+		if(SERVERADDRESS!=null&&!SERVERADDRESS.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERADDRESS, PORT);
+		}
+		//服务器名称形式
+		else if(SERVERNAME!=null&&!SERVERNAME.equals("")){
+			CONFIGURATION=new ConnectionConfiguration(SERVERNAME);
+		}
+		else{
+			CONFIGURATION=null;
+		}
+	}
+	/**
+	 * 工厂模式获取XMPPConnection对象
+	 * @return
+	 */
+	public static XMPPConnection createXMPPConnection(){
+		if(CONFIGURATION!=null){
+			return new XMPPConnection(CONFIGURATION);
+		}
+		else{
+			return null;
+		}
+	}
+	/**
+	 * 连接到服务器
+	 * @param xmppConnection
+	 * @return
+	 */
+	public static boolean connectServer(XMPPConnection xmppConnection){
+		try {
+			xmppConnection.connect();
+			return true;
+		} catch (XMPPException e) {
+			return false;
+		}
+	}
+	/**
+	 * 释放xmppConnection
+	 * @param xmppConnection
+	 */
+	public static void relaseXMPPConnection(XMPPConnection xmppConnection){
+		if(xmppConnection.isConnected()){
+			xmppConnection.disconnect();
+		}
+	}
+	/**
+	 * 注册用户
+	 * @param xmppConnection
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static boolean regist(XMPPConnection xmppConnection,String userName,String password){
+		AccountManager accountManager=xmppConnection.getAccountManager();
+		try {
+			accountManager.createAccount(userName, password);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 登录
+	 * @param xmppConnection
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static boolean login(XMPPConnection xmppConnection,String userName,String password){
+		try {
+			if (!xmppConnection.isConnected()) {
+				xmppConnection.connect();
+			}
+			xmppConnection.login(userName, password);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 登录
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	public static XMPPConnection login(String userName,String password){
+		XMPPConnection xmppConnection = createXMPPConnection();
+		if (xmppConnection != null) {
+			try {
+				if (!xmppConnection.isConnected()) {
+					xmppConnection.connect();
+				}
+				xmppConnection.login(userName, password);
+			} catch (XMPPException e) {
+				e.printStackTrace();
+				xmppConnection = null;
+			}
+		}
+		return xmppConnection;
+	}
+	/**
+     * 设置用户状态
+     * @param xmppConnection
+     * @param type 状态
+     * @param status 状态描述
+     * @return
+     */
+    public  static boolean  setPresence(XMPPConnection xmppConnection,Presence.Type type,String status){
+        Presence presence=new Presence(type);
+        presence.setStatus(status);
+        try{
+            xmppConnection.sendPacket(presence);
+            return true;
+        }catch (Exception e){
+            return  false;
+        }
+    }
+	/**
+	 * 创建聊天
+	 * @param xmppConnection
+	 * @param toUser
+	 * @param messageListener
+	 * @return
+	 */
+	public static Chat createChat(XMPPConnection xmppConnection,String toUser,MessageListener messageListener){
+		// 获取当前登陆用户的聊天管理器 
+		ChatManager chatManager = xmppConnection.getChatManager();
+		// 为指定用户创建一个chat，MyMessageListeners用于监听对方发过来的消息  */
+	    Chat chat = chatManager.createChat(toUser+"@" + SERVERNAME, messageListener);
+	    return chat;
+	}
+	/**
+	 * 发送消息
+	 * @param chat
+	 * @param message
+	 * @return
+	 */
+	public static boolean sendMessage(Chat chat,String message){
+		try {
+			chat.sendMessage(message);
+			return true;
+		} catch (XMPPException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	/**
+	 * 获取所有好友
+	 * @param xmppConnection
+	 * @return
+	 */
+	public static List<RosterEntry> getAllRosterEntry(XMPPConnection xmppConnection){
+		//获取花名册对象
+		Roster roster=xmppConnection.getRoster();
+		//获取所有好友
+		Collection<RosterEntry> rosterEntries=roster.getEntries();
+		return rosterEntries.stream().collect(Collectors.toList());
+	}
+	/**
+	 * 获取所有分组
+	 * @param xmppConnection
+	 * @return
+	 */
+	public static List<RosterGroup> getAllRosterGroup(XMPPConnection xmppConnection){
+		Roster roster=xmppConnection.getRoster();
+		Collection<RosterGroup> rosterGroups=roster.getGroups();
+		return rosterGroups.stream().collect(Collectors.toList());
+	}
+	/**
+	 * 获取某个分组下的所有好友
+	 * @param xmppConnection
+	 * @param groupName
+	 * @return
+	 */
+	public static List<RosterEntry> getRosterEntrysForGroup(XMPPConnection xmppConnection,String groupName){
+		// 获取花名册对象
+		Roster roster = xmppConnection.getRoster();
+		// 获取所有好友
+		RosterGroup rosterGroup = roster.getGroup(groupName);
+		Collection<RosterEntry> rosterEntries = rosterGroup.getEntries();
+		return rosterEntries.stream().collect(Collectors.toList());
+	}
+	 /**
+     * 获取用户VCard信息
+     * @param xmppConnection
+     * @param user
+     * @return
+     */
+    public static VCard getUserVCard(XMPPConnection xmppConnection,String user) {
+        try {
+            VCard vcard = new VCard();
+            vcard.load(xmppConnection,user);
+            return  vcard;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return  null;
+        }
+    }
+
+    /**
+     * 获取用户头像信息
+     * @param xmppConnection	
+     * @param user
+     * @return
+     */
+    public static Image  getUserImage(XMPPConnection xmppConnection, String user) {
+        ByteArrayInputStream bais = null;
+        Image image=null;
+        try {
+            VCard vcard = new VCard();
+            // 加入这句代码，解决No VCard for
+            ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp", new org.jivesoftware.smackx.provider.VCardProvider());
+            if (user == null || user.equals("")) {
+                return null;
+            }
+            vcard.load(xmppConnection, user + "@" + xmppConnection.getServiceName());
+            if (vcard == null || vcard.getAvatar() == null){
+                return null;
+            }
+            bais = new ByteArrayInputStream(vcard.getAvatar());
+            image=ImageIO.read(bais);
+            bais.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  image;
+    }
+    /**
+     * 添加一个分组
+     * @param xmppConnection
+     * @param groupName
+     * @return
+     */
+    public static boolean addGroup(XMPPConnection xmppConnection,String groupName) {
+        try {
+            xmppConnection.getRoster().createGroup(groupName);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 删除分组 SMACK暂不支持
+     * @param xmppConnection
+     * @param groupName
+     * @return
+     */
+    public static boolean removeGroup(XMPPConnection xmppConnection,String groupName) {
+        return true;
+    }
+
+    /**
+     * 添加好友 无分组
+     * @param xmppConnection
+     * @param userName 用户名
+     * @param name 备注名
+     * @return
+     */
+    public static boolean addUserNoGroup(XMPPConnection xmppConnection,String userName, String name) {
+        try {
+            xmppConnection.getRoster().createEntry(userName, name, null);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 添加好友 有分组
+     * @param xmppConnection
+     * @param userName 用户名
+     * @param name 备注名
+     * @param groupName 分组名
+     * @return
+     */
+    public static boolean addUserHaveGroup(XMPPConnection xmppConnection,String userName, String name, String groupName) {
+        try {
+            Presence subscription = new Presence(Presence.Type.subscribed);
+            subscription.setTo(userName);
+            userName += "@" + xmppConnection.getServiceName();
+            xmppConnection.sendPacket(subscription);
+            xmppConnection.getRoster().createEntry(userName, name, new String[] { groupName });
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 删除好友
+     * @param xmppConnection
+     * @param userName
+     * @return
+     */
+    public static boolean removeUser(XMPPConnection xmppConnection,String userName) {
+        try {
+            RosterEntry entry = null;
+            if (userName.contains("@")){
+                entry = xmppConnection.getRoster().getEntry(
+                        userName + "@" + xmppConnection.getServiceName());
+            }else{
+                entry = xmppConnection.getRoster().getEntry(
+                        userName + "@" + xmppConnection.getServiceName());
+            }
+            if (entry == null){
+                entry = xmppConnection.getRoster().getEntry(userName);
+            }
+            xmppConnection.getRoster().removeEntry(entry);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 查询用户
+     * @param xmppConnection
+     * @param userName
+     * @return
+     * @throws XMPPException
+     */
+    public static List<HashMap<String, String>> searchUsers(XMPPConnection xmppConnection,String userName) {
+        List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
+        try {
+            UserSearchManager usm = new UserSearchManager(xmppConnection);
+            Form searchForm = usm.getSearchForm(xmppConnection.getServiceName());
+            Form answerForm = searchForm.createAnswerForm();
+            answerForm.setAnswer("userAccount", true);
+            answerForm.setAnswer("userPhote", userName);
+            ReportedData data = usm.getSearchResults(answerForm, "search" + xmppConnection.getServiceName());
+            Iterator<ReportedData.Row> it = data.getRows();
+            while (it.hasNext()) {
+            	HashMap<String, String> user = new HashMap<String, String>();
+                ReportedData.Row row = it.next();
+                user.put("userAccount", row.getValues("userAccount").next().toString());
+                user.put("userPhote", row.getValues("userPhote").next().toString());
+                results.add(user);
+            }
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    /**
+     * 修改心情
+     * @param xmppConnection
+     * @param status
+     */
+    public static void changeStateMessage(XMPPConnection xmppConnection,String status) {
+        Presence presence = new Presence(Presence.Type.available);
+        presence.setStatus(status);
+        xmppConnection.sendPacket(presence);
+    }
+     /**
+     * 修改用户头像
+     * @param xmppConnection
+     * @param file
+     */
+     public static boolean changeUserImage(XMPPConnection xmppConnection,File file) {
+        try {
+            VCard vcard = new VCard();
+            vcard.load(xmppConnection);
+            byte[] bytes= MyFileUtil.getFileBytes(file);
+            String encodedImage = StringUtils.encodeBase64(bytes);
+            vcard.setAvatar(bytes, encodedImage);
+            vcard.setEncodedImage(encodedImage);
+            vcard.setField("PHOTO", "<TYPE>image/jpg</TYPE><BINVAL>" + encodedImage + "</BINVAL>", true);
+            vcard.save(xmppConnection);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 删除当前用户
+     * @param xmppConnection
+     * @return
+     */
+    public static boolean deleteAccount(XMPPConnection xmppConnection) {
+        try {
+            xmppConnection.getAccountManager().deleteAccount();
+            return true;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 修改当前用户的密码
+     * @param xmppConnection
+     * @param password
+     * @return
+     */
+    public static boolean changePassword(XMPPConnection xmppConnection,String password){
+        try {
+            xmppConnection.getAccountManager().changePassword(password);
+            return true;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 获取用户的所有聊天室
+     * @param xmppConnection
+     * @return
+     */
+    public static List<HostedRoom>  getHostRooms(XMPPConnection xmppConnection){
+        try {
+            new ServiceDiscoveryManager(xmppConnection);
+            Collection<HostedRoom> hostrooms = MultiUserChat.getHostedRooms(xmppConnection,xmppConnection.getServiceName());
+            return hostrooms.stream().collect(Collectors.toList());
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 创建聊天室
+     * @param xmppConnection
+     * @param roomName 房间名
+     * @param password 房间密码
+     * @return
+     */
+    public static MultiUserChat createRoom(XMPPConnection xmppConnection,String roomName,String password){
+        MultiUserChat muc = null;
+        try {
+            // 创建一个MultiUserChat
+            muc = new MultiUserChat(xmppConnection, roomName + "@conference." + xmppConnection.getServiceName());
+            // 创建聊天室
+            muc.create(roomName);
+            // 获得聊天室的配置表单
+            Form form = muc.getConfigurationForm();
+            // 根据原始表单创建一个要提交的新表单。
+            Form submitForm = form.createAnswerForm();
+            // 向要提交的表单添加默认答复
+            for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
+                FormField field = (FormField) fields.next();
+                if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
+                    // 设置默认值作为答复
+                    submitForm.setDefaultAnswer(field.getVariable());
+                }
+            }
+            // 设置聊天室的新拥有者
+            List<String> owners = new ArrayList<String>();
+            owners.add(xmppConnection.getUser());// 用户JID
+            submitForm.setAnswer("muc#roomconfig_roomowners", owners);
+            // 设置聊天室是持久聊天室，即将要被保存下来
+            submitForm.setAnswer("muc#roomconfig_persistentroom", true);
+            // 房间仅对成员开放
+            submitForm.setAnswer("muc#roomconfig_membersonly", false);
+            // 允许占有者邀请其他人
+            submitForm.setAnswer("muc#roomconfig_allowinvites", true);
+            if (password!=null&&!password.equals("")) {
+                // 进入是否需要密码
+                submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
+                // 设置进入密码
+                submitForm.setAnswer("muc#roomconfig_roomsecret", password);
+            }
+            // 登录房间对话
+            submitForm.setAnswer("muc#roomconfig_enablelogging", true);
+            // 仅允许注册的昵称登录
+            submitForm.setAnswer("x-muc#roomconfig_reservednick", true);
+            // 允许使用者修改昵称
+            submitForm.setAnswer("x-muc#roomconfig_canchangenick", false);
+            // 允许用户注册房间
+            submitForm.setAnswer("x-muc#roomconfig_registration", false);
+            // 发送已完成的表单（有默认值）到服务器来配置聊天室
+            muc.sendConfigurationForm(submitForm);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return muc;
+    }
+
+    /**
+     * 加入聊天室
+     * @param xmppConnection
+     * @param roomName
+     * @param password
+     * @return
+     */
+    public static  MultiUserChat joinMultiUserChat(XMPPConnection xmppConnection,String roomName,String password){
+        try {
+            // 使用XMPPConnection创建一个MultiUserChat窗口
+            MultiUserChat muc = new MultiUserChat(xmppConnection, roomName+ "@conference." + xmppConnection.getServiceName());
+            // 聊天室服务将会决定要接受的历史记录数量
+            DiscussionHistory history = new DiscussionHistory();
+            history.setMaxChars(0);
+            // 用户加入聊天室
+            muc.join(xmppConnection.getUser(), password, history, SmackConfiguration.getPacketReplyTimeout());
+            return muc;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 查询聊天室所有成员的用户名
+     * @param multiUserChat
+     * @return
+     */
+    public  static List<String> findUsersInMultiUserChat( MultiUserChat multiUserChat){
+        List<String> listUser = new ArrayList<String>();
+        Iterator<String> it = multiUserChat.getOccupants();
+        // 遍历出聊天室人员名称
+        while (it.hasNext()) {
+            // 聊天室成员名字
+            String name = StringUtils.parseResource(it.next());
+            listUser.add(name);
+        }
+        return listUser;
+    }
+
+    /**
+     * 向其他用户发送文件
+     * @param xmppConnection
+     * @param toUser 接受文件的用户名
+     * @param fileName 文件路径
+     * @param remark 备注
+     * @return
+     */
+    public static boolean sendFileToUser(XMPPConnection xmppConnection,String toUser,String fileName,String remark){
+        // 创建文件传输管理器
+        FileTransferManager manager = new FileTransferManager(xmppConnection);
+        // 创建输出的文件传输
+        OutgoingFileTransfer transfer = manager.createOutgoingFileTransfer(toUser);
+        // 发送文件
+        try {
+            transfer.sendFile(new File(fileName), remark);
+            return  true;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return  false;
+        }
+    }
+
+    /**
+     * 获取用户的所有离线消息
+     * @param xmppConnection
+     * @return
+     */
+    public static Map<String, List<HashMap<String, String>>> getOfflnMessage(XMPPConnection xmppConnection) {
+        Map<String, List<HashMap<String, String>>> offlineMsgs = null;
+        try {
+            OfflineMessageManager offlineManager = new OfflineMessageManager(xmppConnection);
+            Iterator<Message> it = offlineManager.getMessages();
+            offlineMsgs = new HashMap<String, List<HashMap<String, String>>>();
+            while (it.hasNext()) {
+                Message message = it.next();
+                String fromUser = StringUtils.parseName(message.getFrom());
+                HashMap<String, String> histrory = new HashMap<String, String>();
+                histrory.put("useraccount",StringUtils.parseName(xmppConnection.getUser()));
+                histrory.put("friendaccount", fromUser);
+                histrory.put("info", message.getBody());
+                histrory.put("type", "left");
+                if (offlineMsgs.containsKey(fromUser)) {
+                    offlineMsgs.get(fromUser).add(histrory);
+                } else {
+                    List<HashMap<String, String>> temp = new ArrayList<HashMap<String, String>>();
+                    temp.add(histrory);
+                    offlineMsgs.put(fromUser, temp);
+                }
+            }
+            offlineManager.deleteMessages();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return offlineMsgs;
+    }
+
+    /**
+     * 利用WEBAPI判断OpenFire用户的状态 strUrl :
+     * url格式 - http://my.openfire.com:9090/plugins/presence/status?jid=[user]@SERVER_NAME&type=xml
+     * 说明 ：必须要求 OpenFire加载 presence 插件，同时设置任何人都可以访问
+     * @param user
+     * @return  0 - 用户不存在; 1 - 用户在线; 2 - 用户离线
+     */
+    public static int isUserOnLine(String user) {
+        String url = "http://"+SERVERADDRESS+":9090/plugins/presence/status?" + "jid="+ user +"@"+ SERVERNAME +"&type=xml";
+        int shOnLineState = 0; // 不存在
+        try {
+            URL oUrl = new URL(url);
+            URLConnection oConn = oUrl.openConnection();
+            if (oConn != null) {
+                BufferedReader oIn = new BufferedReader(new InputStreamReader(oConn.getInputStream()));
+                if (null != oIn) {
+                    String strFlag = oIn.readLine();
+                    oIn.close();
+                    if (strFlag.indexOf("type=\"unavailable\"") >= 0) {
+                        shOnLineState = 2;
+                    }
+                    if (strFlag.indexOf("type=\"error\"") >= 0) {
+                        shOnLineState = 0;
+                    } else if (strFlag.indexOf("priority") >= 0 || strFlag.indexOf("id=\"") >= 0) {
+                        shOnLineState = 1;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return shOnLineState;
+    }
 
 }

@@ -1,0 +1,12 @@
+package com.fhr.smackjsdemo.utils;
+/**
+ * 基于smack3.2下的封装
+ * @author fhr
+ * @date 2017/04/23
+ */
+public class XMPPUtil {
+	private static final String SERVERADDRESS="";
+	private static final int PORT=5222;
+	private static final String SERVERNAME="";
+	public static xm
+}

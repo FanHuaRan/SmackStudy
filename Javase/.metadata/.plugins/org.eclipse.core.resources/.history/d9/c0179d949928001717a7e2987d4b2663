@@ -1,0 +1,18 @@
+package com.fhr.smackjsdemo.smackmodels;
+
+import org.jivesoftware.smack.XMPPConnection;
+/**
+ * XMPPConnection对象包装器接口
+ * @author fhr
+ * @date 2017/04/24 
+ */
+public interface IXMPConnectionWrapper {
+
+	 XMPPConnection getXmppConnection();
+
+	 void setXmppConnection(XMPPConnection xmppConnection);
+	 
+	 boolean login(String userName,String password);
+	 
+	 boolean connect();
+}

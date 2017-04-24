@@ -1,0 +1,11 @@
+package com.fhr.smackjsdemo.smackmodels;
+
+import org.jivesoftware.smack.XMPPConnection;
+
+public interface IXMPConnectionWrapper {
+
+	 XMPPConnection getXmppConnection();
+
+	 void setXmppConnection(XMPPConnection xmppConnection);
+	
+}
