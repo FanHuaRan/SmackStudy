@@ -1,2 +1,3 @@
 1493002308797	Encapsulate field 'xmppConnection'
 1493009742982	Delete element
+1493045819191	Extract method 'providerConnection'

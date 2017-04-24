@@ -4,6 +4,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketCollector;
@@ -205,6 +206,30 @@ public class XMPPUtil {
                 Log.e("regist", "IQ.Type.ERROR: " + result.getError().toString());
                 return 3;
             }
+        }
+    }
+    /**
+     * 注册用户
+     * @param xmppConnection
+     * @param userName
+     * @param password
+     * @param attributes
+     * @return
+     */
+    public static boolean regist(XMPPConnection xmppConnection,String userName,String password,Map<String,String> attributes){
+        AccountManager accountManager=xmppConnection.getAccountManager();
+        try {
+            if(attributes!=null){
+                accountManager.createAccount(userName, password, attributes);
+            }
+            else{
+                accountManager.createAccount(userName, password);
+            }
+            return true;
+        } catch (XMPPException e) {
+            Log.e("regist", e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
     /**

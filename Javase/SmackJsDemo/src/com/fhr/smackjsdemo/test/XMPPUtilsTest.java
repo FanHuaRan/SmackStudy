@@ -2,156 +2,259 @@ package com.fhr.smackjsdemo.test;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence.Type;
 import org.junit.Test;
+
+import com.fhr.smackjsdemo.utils.XMPPUtil;
 
 public class XMPPUtilsTest {
 
-	@Test
-	public void testLogin() throws XMPPException {
-		XMPPConnection xmppConnection=new XMPPConnection("localhost");
-		xmppConnection.connect();
-		xmppConnection.login("ranrandemo", "admin123");
-	}
+	
 	@Test
 	public void testCreateXMPPConnection() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection=XMPPUtil.createXMPPConnection();
+		assertNotNull(xmppConnection);
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testConnectServer() {
-		fail("Not yet implemented");
+		XMPPUtil.relaseXMPPConnection(providerConnection());
 	}
 
 	@Test
 	public void testRelaseXMPPConnection() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testRegist() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection=providerConnection();
+		Map<String, String> attributes=new HashMap<String,String>(){
+			{
+				put("name", "Tom");
+				put("first ", "Cruise");
+				put("last ", "Tom");
+				put("email ", "81545455@qq.com");
+				put("city","Chengdu");
+				put("text ", "test");
+			}
+		};
+		assertTrue(XMPPUtil.regist(xmppConnection, "Tom", "123",attributes));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testLoginXMPPConnectionStringString() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection=providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection,"ranrandemo", "admin123"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testLoginStringString() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertNotNull(XMPPUtil.login("ranrandemo", "admin123"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testSetPresence() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.setPresence(xmppConnection, Type.error, "I am bad"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testCreateChat() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.createChat(xmppConnection, "tom", null));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testSendMessage() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		Chat chat=XMPPUtil.createChat(xmppConnection, "tom", null);
+		assertTrue(XMPPUtil.sendMessage(chat, "hello"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetAllRosterEntry() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		List<RosterEntry> rosterEntries=XMPPUtil.getAllRosterEntry(xmppConnection);
+		assertNotNull(rosterEntries);
+		assertTrue(rosterEntries.size()>0);
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetAllRosterGroup() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		List<RosterGroup> rosterGroups=XMPPUtil.getAllRosterGroup(xmppConnection);
+		assertNotNull(rosterGroups);
+		assertTrue(rosterGroups.size()>0);
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetRosterEntrysForGroup() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		List<RosterEntry> rosterEntries=XMPPUtil.getRosterEntrysForGroup(xmppConnection, "friends");
+		assertNotNull(rosterEntries);
+		assertTrue(rosterEntries.size()>0);
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetUserVCard() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.getUserVCard(xmppConnection, "ranrandemo"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetUserImage() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.getUserImage(xmppConnection,"ranrandemo"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testAddGroup() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.addGroup(xmppConnection, "familys"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testRemoveGroup() {
-		fail("Not yet implemented");
+		fail("Smack Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testAddUserNoGroup() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.addUserNoGroup(xmppConnection, "tom", "mytom"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testAddUserHaveGroup() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.addUserHaveGroup(xmppConnection, "tom", "mytom", "friends"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testRemoveUser() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.removeUser(xmppConnection, "liuqiang"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testSearchUsers() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		List<HashMap<String, String>> users=XMPPUtil.searchUsers(xmppConnection, "liuqiang");
+		assertNotNull(users);
+		assertTrue(users.size()>0);
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testChangeStateMessage() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "tom", "123"));
+		XMPPUtil.changeStateMessage(xmppConnection,"bad");
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testChangeUserImage() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.changeUserImage(xmppConnection,new File("E:\\项目\\temp2\\RaskRoadaAndGeology\\pixChange\\bin\\Debug\\Images\\propertyquery.png")));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testDeleteAccount() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "testuser", "123"));
+		assertTrue(XMPPUtil.deleteAccount(xmppConnection));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testChangePassword() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "updatepassworduser", "123"));
+		assertTrue(XMPPUtil.changePassword(xmppConnection,"1234"));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testGetHostRooms() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertTrue(XMPPUtil.changeUserImage(xmppConnection,new File("E:\\项目\\temp2\\RaskRoadaAndGeology\\pixChange\\bin\\Debug\\Images\\propertyquery.png")));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testCreateRoom() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.createRoom(xmppConnection,"firstUserChat",null));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
 	public void testJoinMultiUserChat() {
-		fail("Not yet implemented");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.createRoom(xmppConnection,"firstUserChat",null));
+		XMPPConnection xmppConnection2 = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection2, "tom", "123"));
+		assertNotNull(XMPPUtil.joinMultiUserChat(xmppConnection2, "firstUserChat", null));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
+		XMPPUtil.relaseXMPPConnection(xmppConnection2);
 	}
 
 	@Test
 	public void testFindUsersInMultiUserChat() {
-		fail("Not yet implemented");
+		fail("not write code enough");
+		XMPPConnection xmppConnection = providerConnection();
+		assertTrue(XMPPUtil.login(xmppConnection, "ranrandemo", "admin123"));
+		assertNotNull(XMPPUtil.findUsersInMultiUserChat(multiUserChat)(xmppConnection,"firstUserChat",null));
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
 	}
 
 	@Test
@@ -168,5 +271,11 @@ public class XMPPUtilsTest {
 	public void testIsUserOnLine() {
 		fail("Not yet implemented");
 	}
-
+	
+	private XMPPConnection providerConnection() {
+		XMPPConnection xmppConnection=XMPPUtil.createXMPPConnection();
+		assertNotNull(xmppConnection);
+		assertTrue(XMPPUtil.connectServer(xmppConnection));
+		return xmppConnection;
+	}
 }

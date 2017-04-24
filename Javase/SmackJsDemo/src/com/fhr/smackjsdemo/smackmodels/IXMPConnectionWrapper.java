@@ -40,6 +40,15 @@ public interface IXMPConnectionWrapper {
 	 */
 	 boolean login(String userName,String password);
 	 /**
+	  * 注册
+	  * @param userNmae
+	  * @param password
+	  * @param attributes
+	  * @return
+	  */
+	 boolean regist(String userName,String password,Map<String,String> attributes);
+	 
+	 /**
 	  * 连接
 	  * @return
 	  */

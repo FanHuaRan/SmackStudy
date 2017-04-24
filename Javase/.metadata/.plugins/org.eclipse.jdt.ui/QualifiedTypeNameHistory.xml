@@ -6,15 +6,10 @@
 <fullyQualifiedTypeName name="org.jivesoftware.smack.ChatManager"/>
 <fullyQualifiedTypeName name="javax.security.auth.login.Configuration"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.MessageListener"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smack.Chat"/>
 <fullyQualifiedTypeName name="com.fhr.smackjsdemo.smackmodels.XMPPConnectionWrapper"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.Roster"/>
 <fullyQualifiedTypeName name="java.util.Collections"/>
-<fullyQualifiedTypeName name="java.util.List"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterGroup"/>
 <fullyQualifiedTypeName name="java.util.Collection"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterEntry"/>
-<fullyQualifiedTypeName name="java.lang.String"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.AccountManager"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.packet.Presence"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.packet.VCard"/>
@@ -23,7 +18,6 @@
 <fullyQualifiedTypeName name="javax.imageio.ImageIO"/>
 <fullyQualifiedTypeName name="java.awt.Image"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.util.StringUtils"/>
-<fullyQualifiedTypeName name="java.io.File"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.HostedRoom"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.ServiceDiscoveryManager"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.MultiUserChat"/>
@@ -32,12 +26,20 @@
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.Form"/>
 <fullyQualifiedTypeName name="javax.swing.text.html.HTMLDocument.Iterator"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.FormField"/>
-<fullyQualifiedTypeName name="java.util.HashMap"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.search.UserSearchManager"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.packet.DataForm.ReportedData"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.ReportedData"/>
 <fullyQualifiedTypeName name="java.util.Iterator"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="java.lang.String"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.XMPPConnection"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.packet.Presence.Type"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.Chat"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterEntry"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterGroup"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="java.util.Map"/>
+<fullyQualifiedTypeName name="java.io.File"/>
 <fullyQualifiedTypeName name="com.fhr.smackjsdemo.utils.XMPPUtil"/>
 </qualifiedTypeNameHistroy>

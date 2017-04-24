@@ -57,7 +57,7 @@ public class XMPPUtil {
 	/**
 	 * 服务器地址
 	 */
-	private static final String SERVERADDRESS="";
+	private static final String SERVERADDRESS="localhost";
 	/**
 	 * 服务器端口
 	 */
@@ -65,7 +65,7 @@ public class XMPPUtil {
 	/**
 	 * 服务器名称
 	 */
-	private static final String SERVERNAME="";
+	private static final String SERVERNAME="localhost";
 	/**
 	 * 连接配置对象
 	 */
@@ -125,12 +125,18 @@ public class XMPPUtil {
 	 * @param xmppConnection
 	 * @param userName
 	 * @param password
+	 * @param attributes
 	 * @return
 	 */
-	public static boolean regist(XMPPConnection xmppConnection,String userName,String password){
+	public static boolean regist(XMPPConnection xmppConnection,String userName,String password,Map<String,String> attributes){
 		AccountManager accountManager=xmppConnection.getAccountManager();
 		try {
-			accountManager.createAccount(userName, password);
+			if(attributes!=null){
+				accountManager.createAccount(userName, password, attributes);
+			}
+			else{
+				accountManager.createAccount(userName, password);
+			}
 			return true;
 		} catch (XMPPException e) {
 			e.printStackTrace();

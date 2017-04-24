@@ -186,4 +186,9 @@ public class XMPPConnectionWrapper implements IXMPConnectionWrapper{
 	public int isUserOnLine(String user) {
 		return XMPPUtil.isUserOnLine(user);
 	}
+
+	@Override
+	public boolean regist(String userNmae, String password, Map<String, String> attributes) {
+		return XMPPUtil.regist(xmppConnection,userNmae, password, attributes);
+	}
 }
