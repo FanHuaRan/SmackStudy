@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
@@ -18,6 +19,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.packet.VCard;
 /**
  * XMPPConnection对象包装器接口
+ * 代理模式的变种
  * @author fhr
  * @date 2017/04/24 
  */
@@ -197,7 +199,7 @@ public interface IXMPConnectionWrapper {
 	 * @param password 房间密码
 	 * @return
 	 */
-	MultiUserChat createRoom(String roomName, String password);
+	MultiUserChat createRoom(String roomName, String password,PacketListener packetListener);
 
 	/**
 	 * 加入聊天室
@@ -205,7 +207,7 @@ public interface IXMPConnectionWrapper {
 	 * @param password
 	 * @return
 	 */
-	MultiUserChat joinMultiUserChat(String roomName, String password);
+	MultiUserChat joinMultiUserChat(String roomName, String password,PacketListener packetListener);
 
 	/**
 	 * 查询聊天室所有成员的用户名

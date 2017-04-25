@@ -4,6 +4,7 @@ import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -22,6 +23,7 @@ import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
@@ -304,9 +306,14 @@ public class XMPPUtil {
             }
             bais = new ByteArrayInputStream(vcard.getAvatar());
             image=ImageIO.read(bais);
-            bais.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally{
+            try {
+				bais.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
         return  image;
     }
@@ -514,9 +521,10 @@ public class XMPPUtil {
      * @param xmppConnection
      * @param roomName 房间名
      * @param password 房间密码
+     * @param packetListener 消息监听器
      * @return
      */
-    public static MultiUserChat createRoom(XMPPConnection xmppConnection,String roomName,String password){
+    public static MultiUserChat createRoom(XMPPConnection xmppConnection,String roomName,String password,PacketListener packetListener){
         MultiUserChat muc = null;
         try {
             // 创建一个MultiUserChat
@@ -561,6 +569,10 @@ public class XMPPUtil {
             submitForm.setAnswer("x-muc#roomconfig_registration", false);
             // 发送已完成的表单（有默认值）到服务器来配置聊天室
             muc.sendConfigurationForm(submitForm);
+            //监听器参数不为空则添加监听器
+            if(packetListener!=null){
+                muc.addMessageListener(packetListener);
+            }
         } catch (XMPPException e) {
             e.printStackTrace();
             return null;
@@ -575,7 +587,7 @@ public class XMPPUtil {
      * @param password
      * @return
      */
-    public static  MultiUserChat joinMultiUserChat(XMPPConnection xmppConnection,String roomName,String password){
+    public static  MultiUserChat joinMultiUserChat(XMPPConnection xmppConnection,String roomName,String password,PacketListener packetListener){
         try {
             // 使用XMPPConnection创建一个MultiUserChat窗口
             MultiUserChat muc = new MultiUserChat(xmppConnection, roomName+ "@conference." + xmppConnection.getServiceName());
@@ -584,6 +596,9 @@ public class XMPPUtil {
             history.setMaxChars(0);
             // 用户加入聊天室
             muc.join(xmppConnection.getUser(), password, history, SmackConfiguration.getPacketReplyTimeout());
+            if(packetListener!=null){
+            	muc.addMessageListener(packetListener);
+            }
             return muc;
         } catch (XMPPException e) {
             e.printStackTrace();

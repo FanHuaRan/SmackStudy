@@ -1,0 +1,241 @@
+package com.fhr.smackjsdemo.smackmodels;
+
+import java.awt.Image;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.packet.VCard;
+/**
+ * XMPPConnection对象包装器接口
+ * @author fhr
+ * @date 2017/04/24 
+ */
+public interface IXMPConnectionWrapper {
+	/**
+	 *XMPPConnection getter
+	 * @return
+	 */
+	 XMPPConnection getXmppConnection();
+	 /**
+	  * XMPPConnection setter
+	  * @param xmppConnection
+	  */
+	 void setXmppConnection(XMPPConnection xmppConnection);
+	/**
+	 * 登录
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	 boolean login(String userName,String password);
+	 /**
+	  * 注册
+	  * @param userNmae
+	  * @param password
+	  * @param attributes
+	  * @return
+	  */
+	 boolean regist(String userName,String password,Map<String,String> attributes);
+	 
+	 /**
+	  * 连接
+	  * @return
+	  */
+	 boolean connect();
+	 /**
+	  * 断开连接
+	  */
+	 void disConnect();
+
+	/**
+	 * 设置用户状态
+	 * @param type 状态
+	 * @param status 状态描述
+	 * @return
+	 */
+	boolean setPresence(Presence.Type type, String status);
+
+	/**
+	 * 创建聊天
+	 * @param toUser
+	 * @param messageListener
+	 * @return
+	 */
+	Chat createChat(String toUser, MessageListener messageListener);
+
+	/**
+	 * 发送消息
+	 * @param chat
+	 * @param message
+	 * @return
+	 */
+	boolean sendMessage(Chat chat, String message);
+
+	/**
+	 * 获取所有好友
+	 * @return
+	 */
+	List<RosterEntry> getAllRosterEntry();
+
+	/**
+	 * 获取所有分组
+	 * @return
+	 */
+	List<RosterGroup> getAllRosterGroup(XMPPConnection xmppConnection);
+
+	/**
+	 * 获取某个分组下的所有好友
+	 * @param groupName
+	 * @return
+	 */
+	List<RosterEntry> getRosterEntrysForGroup(String groupName);
+
+	/**
+	 * 获取用户VCard信息
+	 * @param user
+	 * @return
+	 */
+	VCard getUserVCard(String user);
+
+	/**
+	 * 获取用户头像信息
+	 * @param user
+	 * @return
+	 */
+	Image getUserImage(String user);
+
+	/**
+	 * 添加一个分组
+	 * @param groupName
+	 * @return
+	 */
+	boolean addGroup(String groupName);
+
+	/**
+	 * 删除分组 SMACK暂不支持
+	 * @param groupName
+	 * @return
+	 */
+	boolean removeGroup(XMPPConnection xmppConnection, String groupName);
+
+	/**
+	 * 添加好友 无分组
+	 * @param userName 用户名
+	 * @param name 备注名
+	 * @return
+	 */
+	boolean addUserNoGroup(String userName, String name);
+
+	/**
+	 * 添加好友 有分组
+	 * @param userName 用户名
+	 * @param name 备注名
+	 * @param groupName 分组名
+	 * @return
+	 */
+	boolean addUserHaveGroup(String userName, String name, String groupName);
+
+	/**
+	 * 删除好友
+	 * @param userName
+	 * @return
+	 */
+	boolean removeUser(String userName);
+
+	/**
+	 * 查询用户
+	 * @param userName
+	 * @return
+	 */
+	List<HashMap<String, String>> searchUsers(String userName);
+
+	/**
+	 * 修改心情
+	 * @param status
+	 */
+	void changeStateMessage(String status);
+
+	/**
+	 * 修改用户头像
+	 * @param file
+	 */
+	boolean changeUserImage(File file);
+
+	/**
+	 * 删除当前用户
+	 * @return
+	 */
+	boolean deleteAccount();
+
+	/**
+	 * 修改当前用户的密码
+	 * @param password
+	 * @return
+	 */
+	boolean changePassword(String password);
+
+	/**
+	 * 获取用户的所有聊天室
+	 * @return
+	 */
+	List<HostedRoom> getHostRooms();
+
+	/**
+	 * 创建聊天室
+	 * @param roomName  房间名
+	 * @param password 房间密码
+	 * @return
+	 */
+	MultiUserChat createRoom(String roomName, String password,PacketListener packetListener);
+
+	/**
+	 * 加入聊天室
+	 * @param roomName
+	 * @param password
+	 * @return
+	 */
+	MultiUserChat joinMultiUserChat(String roomName, String password,PacketListener packetListener);
+
+	/**
+	 * 查询聊天室所有成员的用户名
+	 * @param multiUserChat
+	 * @return
+	 */
+	List<String> findUsersInMultiUserChat(MultiUserChat multiUserChat);
+
+	/**
+	 * 向其他用户发送文件
+	 * @param toUser  接受文件的用户名
+	 * @param fileName 文件路径
+	 * @param remark 备注
+	 * @return
+	 */
+	boolean sendFileToUser(String toUser, String fileName, String remark);
+
+	/**
+	 * 获取用户的所有离线消息
+	 * @return
+	 */
+	Map<String, List<HashMap<String, String>>> getOfflnMessage();
+
+	/**
+	 * 利用WEBAPI判断OpenFire用户的状态 strUrl : url格式 -
+	 * http://my.openfire.com:9090/plugins/presence/status?jid=[user]@SERVER_NAME&type=xml 
+	 * 说明 ：必须要求 OpenFire加载 presence 插件，同时设置任何人都可以访问
+	 * @param user
+	 * @return 0 - 用户不存在; 1 - 用户在线; 2 - 用户离线
+	 */
+	int isUserOnLine(String user);
+}

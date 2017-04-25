@@ -1,0 +1,194 @@
+package com.fhr.smackjsdemo.smackmodels;
+
+import java.awt.Image;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.packet.VCard;
+
+import com.fhr.smackjsdemo.utils.XMPPUtil;
+
+/**
+ * XMPPConnection对象包装器
+ * @author fhr
+ * @date 2017/04/24 
+ */
+public class XMPPConnectionWrapper implements IXMPConnectionWrapper{
+	
+	private XMPPConnection xmppConnection;
+	
+	public XMPPConnectionWrapper(XMPPConnection xmppConnection){
+		this.xmppConnection=xmppConnection;
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		XMPPUtil.relaseXMPPConnection(xmppConnection);
+	}
+	
+	public XMPPConnection getXmppConnection() {
+		return xmppConnection;
+	}
+
+	public void setXmppConnection(XMPPConnection xmppConnection) {
+		this.xmppConnection = xmppConnection;
+	}
+ 
+	@Override
+	public boolean login(String userName, String password) {
+		return XMPPUtil.login(xmppConnection, userName, password);
+	}
+
+	@Override
+	public boolean connect() {
+		return XMPPUtil.connectServer(xmppConnection);
+	}
+
+	@Override
+	public void disConnect() {
+		if(xmppConnection.isConnected()){
+			xmppConnection.disconnect();
+		}
+	}
+
+	@Override
+	public boolean setPresence(Type type, String status) {
+		return XMPPUtil.setPresence(xmppConnection, type, status);
+	}
+
+	@Override
+	public Chat createChat(String toUser, MessageListener messageListener) {
+		return XMPPUtil.createChat(xmppConnection, toUser, messageListener);
+	}
+
+	@Override
+	public boolean sendMessage(Chat chat, String message) {
+		return XMPPUtil.sendMessage(chat, message);
+	}
+
+	@Override
+	public List<RosterEntry> getAllRosterEntry() {
+		return XMPPUtil.getAllRosterEntry(xmppConnection);
+	}
+
+	@Override
+	public List<RosterGroup> getAllRosterGroup(XMPPConnection xmppConnection) {
+		return XMPPUtil.getAllRosterGroup(xmppConnection);
+	}
+
+	@Override
+	public List<RosterEntry> getRosterEntrysForGroup(String groupName) {
+		return XMPPUtil.getRosterEntrysForGroup(xmppConnection,groupName);
+	}
+
+	@Override
+	public VCard getUserVCard(String user) {
+		return XMPPUtil.getUserVCard(xmppConnection, user);
+	}
+
+	@Override
+	public Image getUserImage(String user) {
+		return XMPPUtil.getUserImage(xmppConnection, user);
+	}
+
+	@Override
+	public boolean addGroup(String groupName) {
+		return XMPPUtil.addGroup(xmppConnection, groupName);
+	}
+
+	@Override
+	public boolean removeGroup(XMPPConnection xmppConnection, String groupName) {
+		return XMPPUtil.removeGroup(xmppConnection, groupName);
+	}
+
+	@Override
+	public boolean addUserNoGroup(String userName, String name) {
+		return XMPPUtil.addUserNoGroup(xmppConnection, userName, name);
+	}
+
+	@Override
+	public boolean addUserHaveGroup(String userName, String name, String groupName) {
+		return XMPPUtil.addUserHaveGroup(xmppConnection, userName, name, groupName);
+	}
+
+	@Override
+	public boolean removeUser(String userName) {
+		return XMPPUtil.removeUser(xmppConnection, userName);
+	}
+
+	@Override
+	public List<HashMap<String, String>> searchUsers(String userName) {
+		return XMPPUtil.searchUsers(xmppConnection, userName);
+	}
+
+	@Override
+	public void changeStateMessage(String status) {
+		XMPPUtil.changeStateMessage(xmppConnection, status);
+	}
+
+	@Override
+	public boolean changeUserImage(File file) {
+		return XMPPUtil.changeUserImage(xmppConnection, file);
+	}
+
+	@Override
+	public boolean deleteAccount() {
+		return XMPPUtil.deleteAccount(xmppConnection);
+	}
+
+	@Override
+	public boolean changePassword(String password) {
+		return XMPPUtil.changePassword(xmppConnection, password);
+	}
+
+	@Override
+	public List<HostedRoom> getHostRooms() {
+		return XMPPUtil.getHostRooms(xmppConnection);
+	}
+
+	@Override
+	public MultiUserChat createRoom(String roomName, String password) {
+		return XMPPUtil.createRoom(xmppConnection, roomName, password);
+	}
+
+	@Override
+	public MultiUserChat joinMultiUserChat(String roomName, String password) {
+		return XMPPUtil.joinMultiUserChat(xmppConnection, roomName, password);
+	}
+
+	@Override
+	public List<String> findUsersInMultiUserChat(MultiUserChat multiUserChat) {
+		return XMPPUtil.findUsersInMultiUserChat(multiUserChat);
+	}
+
+	@Override
+	public boolean sendFileToUser(String toUser, String fileName, String remark) {
+		return XMPPUtil.sendFileToUser(xmppConnection, toUser, fileName, remark);
+	}
+
+	@Override
+	public Map<String, List<HashMap<String, String>>> getOfflnMessage() {
+		return XMPPUtil.getOfflnMessage(xmppConnection);
+	}
+
+	@Override
+	public int isUserOnLine(String user) {
+		return XMPPUtil.isUserOnLine(user);
+	}
+
+	@Override
+	public boolean regist(String userNmae, String password, Map<String, String> attributes) {
+		return XMPPUtil.regist(xmppConnection,userNmae, password, attributes);
+	}
+}

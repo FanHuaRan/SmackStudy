@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
@@ -158,13 +159,13 @@ public class XMPPConnectionWrapper implements IXMPConnectionWrapper{
 	}
 
 	@Override
-	public MultiUserChat createRoom(String roomName, String password) {
-		return XMPPUtil.createRoom(xmppConnection, roomName, password);
+	public MultiUserChat createRoom(String roomName, String password,PacketListener packetListener) {
+		return XMPPUtil.createRoom(xmppConnection, roomName, password,packetListener);
 	}
 
 	@Override
-	public MultiUserChat joinMultiUserChat(String roomName, String password) {
-		return XMPPUtil.joinMultiUserChat(xmppConnection, roomName, password);
+	public MultiUserChat joinMultiUserChat(String roomName, String password,PacketListener packetListener) {
+		return XMPPUtil.joinMultiUserChat(xmppConnection, roomName, password,packetListener);
 	}
 
 	@Override

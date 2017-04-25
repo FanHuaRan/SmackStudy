@@ -8,6 +8,7 @@ import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.SmackConfiguration;
@@ -78,6 +79,7 @@ import java.util.Map;
  * XMPP协议辅助类
  * 基于ASMACK开发包
  * 参考：http://blog.csdn.net/h7870181/article/details/12500231
+ * 参考：http://blog.csdn.net/liuhongwei123888/article/details/6618408
  * @author fhr
  * @date 2017/04/21
  */
@@ -85,15 +87,15 @@ public class XMPPUtil {
     /**
      * 服务器地址
      */
-    private static  final  String SERVERADDRESS="10.0.2.2";
+    private static final String SERVERADDRESS = "10.0.2.2";
     /**
      * 端口
      */
-    private static  final  int PORT=5222;
+    private static final int PORT = 5222;
     /**
      * 服务器名称
      */
-    private static  final  String SERVERNAME="";
+    private static final String SERVERNAME = "";
 
     static {
         //配置相关资源
@@ -105,26 +107,26 @@ public class XMPPUtil {
      * @param connectionListener 连接监听器
      * @return
      */
-    public static XMPPConnection getXMPPConnection(ConnectionListener connectionListener){
-        return getXMPPConnection(30,false,false,true, ConnectionConfiguration.SecurityMode.disabled,connectionListener);
+    public static XMPPConnection getXMPPConnection(ConnectionListener connectionListener) {
+        return getXMPPConnection(30, false, false, true, ConnectionConfiguration.SecurityMode.disabled, connectionListener);
     }
 
     /**
      * 工厂模式获取连接对象 还没有连接服务器
-     * @param connectionTimeOut 连接超时的时间
+     * @param connectionTimeOut   连接超时的时间
      * @param reconnectionAllowed 是否准许重连接
-     * @param isPresence 是否在线
-     * @param debugEnable 是否调试
-     * @param securityMode 安全模式
-     * @param connectionListener 连接监听器
+     * @param isPresence          是否在线
+     * @param debugEnable         是否调试
+     * @param securityMode        安全模式
+     * @param connectionListener  连接监听器
      * @return
      */
-    public static XMPPConnection getXMPPConnection(int connectionTimeOut,boolean reconnectionAllowed, boolean isPresence, boolean debugEnable,
-                                                         ConnectionConfiguration.SecurityMode securityMode,ConnectionListener connectionListener){
+    public static XMPPConnection getXMPPConnection(int connectionTimeOut, boolean reconnectionAllowed, boolean isPresence, boolean debugEnable,
+                                                   ConnectionConfiguration.SecurityMode securityMode, ConnectionListener connectionListener) {
         //设置是否开启DEBUG模式
-        XMPPConnection.DEBUG_ENABLED=debugEnable;
+        XMPPConnection.DEBUG_ENABLED = debugEnable;
         //设置连接地址、端口
-        ConnectionConfiguration configuration=new ConnectionConfiguration(SERVERADDRESS,PORT);
+        ConnectionConfiguration configuration = new ConnectionConfiguration(SERVERADDRESS, PORT);
         //设置服务器名称
         configuration.setServiceName(SERVERNAME);
         //设置是否需要SAS验证
@@ -136,9 +138,9 @@ public class XMPPUtil {
         //设置是否准许重连接
         configuration.setReconnectionAllowed(reconnectionAllowed);
         //实例化连接对象
-        XMPPConnection xmppConnection=new XMPPConnection(configuration);
+        XMPPConnection xmppConnection = new XMPPConnection(configuration);
         //添加连接监听器
-        if(connectionListener!=null){
+        if (connectionListener != null) {
             xmppConnection.addConnectionListener(connectionListener);
         }
         return xmppConnection;
@@ -149,25 +151,26 @@ public class XMPPUtil {
      * @param xmppConnection
      * @return
      */
-    public static boolean connectServer(XMPPConnection xmppConnection){
-       try{
-           xmppConnection.connect();
-           return  true;
-       }catch (Exception e){
-           Log.e("connectServer",e.getMessage());
-           return  false;
-       }
+    public static boolean connectServer(XMPPConnection xmppConnection) {
+        try {
+            xmppConnection.connect();
+            return true;
+        } catch (Exception e) {
+            Log.e("connectServer", e.getMessage());
+            return false;
+        }
     }
+
     /**
-     *关闭连接
+     * 关闭连接
      * @param xmppConnection
      */
-    public static  void closeConnection(XMPPConnection xmppConnection){
-        if(xmppConnection!=null){
-            if(xmppConnection.isConnected()){
+    public static void closeConnection(XMPPConnection xmppConnection) {
+        if (xmppConnection != null) {
+            if (xmppConnection.isConnected()) {
                 xmppConnection.disconnect();
             }
-            xmppConnection=null;
+            xmppConnection = null;
         }
     }
 
@@ -178,8 +181,8 @@ public class XMPPUtil {
      * @param password
      * @return 1、注册成功 0、服务器没有返回结果2、这个账号已经存在3、注册失败
      */
-    public static  int regist(XMPPConnection xmppConnection,String userName,String password){
-        Registration registration=new Registration();
+    public static int regist(XMPPConnection xmppConnection, String userName, String password) {
+        Registration registration = new Registration();
         registration.setType(IQ.Type.SET);
         registration.setTo(xmppConnection.getServiceName());
         registration.setUsername(userName);
@@ -208,6 +211,7 @@ public class XMPPUtil {
             }
         }
     }
+
     /**
      * 注册用户
      * @param xmppConnection
@@ -216,13 +220,12 @@ public class XMPPUtil {
      * @param attributes
      * @return
      */
-    public static boolean regist(XMPPConnection xmppConnection,String userName,String password,Map<String,String> attributes){
-        AccountManager accountManager=xmppConnection.getAccountManager();
+    public static boolean regist(XMPPConnection xmppConnection, String userName, String password, Map<String, String> attributes) {
+        AccountManager accountManager = xmppConnection.getAccountManager();
         try {
-            if(attributes!=null){
+            if (attributes != null) {
                 accountManager.createAccount(userName, password, attributes);
-            }
-            else{
+            } else {
                 accountManager.createAccount(userName, password);
             }
             return true;
@@ -232,6 +235,7 @@ public class XMPPUtil {
             return false;
         }
     }
+
     /**
      * 登录
      * @param xmppConnection
@@ -239,15 +243,16 @@ public class XMPPUtil {
      * @param password
      * @return
      */
-    public static  boolean login(XMPPConnection xmppConnection,String userName,String password){
-        try{
-            xmppConnection.login(userName,password);
-            return  true;
-        }catch (Exception e){
-            Log.e("login",e.getMessage());
-            return  false;
+    public static boolean login(XMPPConnection xmppConnection, String userName, String password) {
+        try {
+            xmppConnection.login(userName, password);
+            return true;
+        } catch (Exception e) {
+            Log.e("login", e.getMessage());
+            return false;
         }
     }
+
     /**
      * 登录
      * 返回XMPPConnection则登录成功
@@ -257,10 +262,10 @@ public class XMPPUtil {
      * @param connectionListener
      * @return
      */
-    public  static  XMPPConnection login(String userName,String password,ConnectionListener connectionListener){
-        XMPPConnection connection=getXMPPConnection(connectionListener);
-        if(connectServer(connection)&&login(connection,userName,password)){
-            return  connection;
+    public static XMPPConnection login(String userName, String password, ConnectionListener connectionListener) {
+        XMPPConnection connection = getXMPPConnection(connectionListener);
+        if (connectServer(connection) && login(connection, userName, password)) {
+            return connection;
         }
         return null;
     }
@@ -272,15 +277,15 @@ public class XMPPUtil {
      * @param status
      * @return
      */
-    public  static boolean  setPresence(XMPPConnection xmppConnection,Presence.Type type,String status){
-        Presence presence=new Presence(type);
+    public static boolean setPresence(XMPPConnection xmppConnection, Presence.Type type, String status) {
+        Presence presence = new Presence(type);
         presence.setStatus(status);
-        try{
+        try {
             xmppConnection.sendPacket(presence);
             return true;
-        }catch (Exception e){
-            Log.e("setPresence",e.getMessage());
-            return  false;
+        } catch (Exception e) {
+            Log.e("setPresence", e.getMessage());
+            return false;
         }
     }
 
@@ -289,9 +294,9 @@ public class XMPPUtil {
      * @param xmppConnection
      * @return
      */
-    public static List<RosterGroup> getGroups(XMPPConnection xmppConnection){
-        List<RosterGroup> rosterGroups=new ArrayList<>();
-        Iterator<RosterGroup> i =xmppConnection.getRoster().getGroups().iterator();
+    public static List<RosterGroup> getGroups(XMPPConnection xmppConnection) {
+        List<RosterGroup> rosterGroups = new ArrayList<>();
+        Iterator<RosterGroup> i = xmppConnection.getRoster().getGroups().iterator();
         while (i.hasNext()) {
             rosterGroups.add(i.next());
         }
@@ -301,18 +306,18 @@ public class XMPPUtil {
     /**
      * 获取某个组里面的所有好友
      * @param xmppConnection
-     * @param groupName 组名
+     * @param groupName      组名
      * @return
      */
     public static List<RosterEntry> getEntriesByGroup(XMPPConnection xmppConnection, String groupName) {
-        List<RosterEntry> Entrieslist = new ArrayList<RosterEntry>();
+        List<RosterEntry> rosterEntries = new ArrayList<RosterEntry>();
         RosterGroup rosterGroup = xmppConnection.getRoster().getGroup(groupName);
         Collection<RosterEntry> rosterEntry = rosterGroup.getEntries();
         Iterator<RosterEntry> i = rosterEntry.iterator();
         while (i.hasNext()) {
-            Entrieslist.add(i.next());
+            rosterEntries.add(i.next());
         }
-        return Entrieslist;
+        return rosterEntries;
     }
 
     /**
@@ -321,13 +326,13 @@ public class XMPPUtil {
      * @return
      */
     public static List<RosterEntry> getAllEntries(XMPPConnection xmppConnection) {
-        List<RosterEntry> Entrieslist = new ArrayList<RosterEntry>();
+        List<RosterEntry> rosterEntries = new ArrayList<RosterEntry>();
         Collection<RosterEntry> rosterEntry = xmppConnection.getRoster().getEntries();
         Iterator<RosterEntry> i = rosterEntry.iterator();
         while (i.hasNext()) {
-            Entrieslist.add(i.next());
+            rosterEntries.add(i.next());
         }
-        return Entrieslist;
+        return rosterEntries;
     }
 
     /**
@@ -336,15 +341,15 @@ public class XMPPUtil {
      * @param user
      * @return
      */
-    public static VCard getUserVCard(XMPPConnection xmppConnection,String user) {
+    public static VCard getUserVCard(XMPPConnection xmppConnection, String user) {
         try {
             VCard vcard = new VCard();
-            vcard.load(xmppConnection,user);
-            return  vcard;
+            vcard.load(xmppConnection, user);
+            return vcard;
         } catch (XMPPException e) {
             e.printStackTrace();
-            Log.e("getUserVCard",e.getMessage());
-            return  null;
+            Log.e("getUserVCard", e.getMessage());
+            return null;
         }
     }
 
@@ -356,7 +361,7 @@ public class XMPPUtil {
      */
     public static Drawable getUserImage(XMPPConnection xmppConnection, String user) {
         ByteArrayInputStream bais = null;
-        Drawable bitmapDrawable=null;
+        Drawable bitmapDrawable = null;
         try {
             VCard vcard = new VCard();
             // 加入这句代码，解决No VCard for
@@ -365,30 +370,37 @@ public class XMPPUtil {
                 return null;
             }
             vcard.load(xmppConnection, user + "@" + xmppConnection.getServiceName());
-            if (vcard == null || vcard.getAvatar() == null){
+            if (vcard == null || vcard.getAvatar() == null) {
                 return null;
             }
             bais = new ByteArrayInputStream(vcard.getAvatar());
-            bitmapDrawable=new BitmapDrawable(bais);
-            bais.close();
+            bitmapDrawable = new BitmapDrawable(bais);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("getUserImage",e.getMessage());
+            Log.e("getUserImage", e.getMessage());
+        } finally {
+            try {
+                bais.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("getUserImage", e.getMessage());
+            }
         }
-        return  bitmapDrawable;
+        return bitmapDrawable;
     }
+
     /**
      * 添加一个分组
      * @param xmppConnection
      * @param groupName
      * @return
      */
-    public static boolean addGroup(XMPPConnection xmppConnection,String groupName) {
+    public static boolean addGroup(XMPPConnection xmppConnection, String groupName) {
         try {
             xmppConnection.getRoster().createGroup(groupName);
             return true;
         } catch (Exception e) {
-            Log.e("addGroup",e.getMessage());
+            Log.e("addGroup", e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -400,23 +412,23 @@ public class XMPPUtil {
      * @param groupName
      * @return
      */
-    public static boolean removeGroup(XMPPConnection xmppConnection,String groupName) {
+    public static boolean removeGroup(XMPPConnection xmppConnection, String groupName) {
         return true;
     }
 
     /**
      * 添加好友 无分组
      * @param xmppConnection
-     * @param userName 用户名
-     * @param name 备注名
+     * @param userName       用户名
+     * @param name           备注名
      * @return
      */
-    public static boolean addUserNoGroup(XMPPConnection xmppConnection,String userName, String name) {
+    public static boolean addUserNoGroup(XMPPConnection xmppConnection, String userName, String name) {
         try {
             xmppConnection.getRoster().createEntry(userName, name, null);
             return true;
         } catch (Exception e) {
-            Log.e("addUser",e.getMessage());
+            Log.e("addUser", e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -425,21 +437,21 @@ public class XMPPUtil {
     /**
      * 添加好友 有分组
      * @param xmppConnection
-     * @param userName 用户名
-     * @param name 备注名
-     * @param groupName 分组名
+     * @param userName       用户名
+     * @param name           备注名
+     * @param groupName      分组名
      * @return
      */
-    public static boolean addUserHaveGroup(XMPPConnection xmppConnection,String userName, String name, String groupName) {
+    public static boolean addUserHaveGroup(XMPPConnection xmppConnection, String userName, String name, String groupName) {
         try {
             Presence subscription = new Presence(Presence.Type.subscribed);
             subscription.setTo(userName);
             userName += "@" + xmppConnection.getServiceName();
             xmppConnection.sendPacket(subscription);
-            xmppConnection.getRoster().createEntry(userName, name, new String[] { groupName });
+            xmppConnection.getRoster().createEntry(userName, name, new String[]{groupName});
             return true;
         } catch (Exception e) {
-            Log.e("addUser",e.getMessage());
+            Log.e("addUser", e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -451,23 +463,23 @@ public class XMPPUtil {
      * @param userName
      * @return
      */
-    public static boolean removeUser(XMPPConnection xmppConnection,String userName) {
+    public static boolean removeUser(XMPPConnection xmppConnection, String userName) {
         try {
             RosterEntry entry = null;
-            if (userName.contains("@")){
+            if (userName.contains("@")) {
                 entry = xmppConnection.getRoster().getEntry(
                         userName + "@" + xmppConnection.getServiceName());
-            }else{
+            } else {
                 entry = xmppConnection.getRoster().getEntry(
                         userName + "@" + xmppConnection.getServiceName());
             }
-            if (entry == null){
+            if (entry == null) {
                 entry = xmppConnection.getRoster().getEntry(userName);
             }
             xmppConnection.getRoster().removeEntry(entry);
             return true;
         } catch (Exception e) {
-            Log.e("removeUser",e.getMessage());
+            Log.e("removeUser", e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -480,7 +492,7 @@ public class XMPPUtil {
      * @return
      * @throws XMPPException
      */
-    public static List<HashMap<String, String>> searchUsers(XMPPConnection xmppConnection,String userName) {
+    public static List<HashMap<String, String>> searchUsers(XMPPConnection xmppConnection, String userName) {
         List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
         try {
             UserSearchManager usm = new UserSearchManager(xmppConnection);
@@ -498,7 +510,7 @@ public class XMPPUtil {
                 results.add(user);
             }
         } catch (XMPPException e) {
-            Log.e("searchUsers",e.getMessage());
+            Log.e("searchUsers", e.getMessage());
             e.printStackTrace();
         }
         return results;
@@ -506,37 +518,41 @@ public class XMPPUtil {
 
     /**
      * 修改心情
+     *
      * @param xmppConnection
      * @param status
      */
-    public static void changeStateMessage(XMPPConnection xmppConnection,String status) {
+    public static void changeStateMessage(XMPPConnection xmppConnection, String status) {
         Presence presence = new Presence(Presence.Type.available);
         presence.setStatus(status);
         xmppConnection.sendPacket(presence);
     }
-     /**
+
+    /**
      * 修改用户头像
+     *
      * @param xmppConnection
      * @param file
      */
-     public static boolean changeUserImage(XMPPConnection xmppConnection,File file) {
+    public static boolean changeUserImage(XMPPConnection xmppConnection, File file) {
         try {
             VCard vcard = new VCard();
             vcard.load(xmppConnection);
-            byte[] bytes= MyFileUtil.getFileBytes(file);
+            byte[] bytes = MyFileUtil.getFileBytes(file);
             String encodedImage = StringUtils.encodeBase64(bytes);
             vcard.setAvatar(bytes, encodedImage);
             vcard.setEncodedImage(encodedImage);
             vcard.setField("PHOTO", "<TYPE>image/jpg</TYPE><BINVAL>" + encodedImage + "</BINVAL>", true);
-            //ByteArrayInputStream bais = new ByteArrayInputStream(vcard.getAvatar());
             vcard.save(xmppConnection);
-            return true;
+            return  true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
     /**
+     return true;
      * 删除当前用户
      * @param xmppConnection
      * @return
@@ -596,9 +612,10 @@ public class XMPPUtil {
      * @param xmppConnection
      * @param roomName 房间名
      * @param password 房间密码
+     * @param packetListener 消息监听器
      * @return
      */
-    public static MultiUserChat createRoom(XMPPConnection xmppConnection,String roomName,String password){
+    public static MultiUserChat createRoom(XMPPConnection xmppConnection,String roomName,String password,PacketListener packetListener){
         MultiUserChat muc = null;
         try {
             // 创建一个MultiUserChat
@@ -643,6 +660,9 @@ public class XMPPUtil {
             submitForm.setAnswer("x-muc#roomconfig_registration", false);
             // 发送已完成的表单（有默认值）到服务器来配置聊天室
             muc.sendConfigurationForm(submitForm);
+            if(packetListener!=null){
+                muc.addMessageListener(packetListener);
+            }
         } catch (XMPPException e) {
             Log.e("createRomm",e.getMessage());
             e.printStackTrace();
@@ -656,9 +676,10 @@ public class XMPPUtil {
      * @param xmppConnection
      * @param roomName
      * @param password
+     * @param packetListener 消息监听器
      * @return
      */
-    public static  MultiUserChat joinMultiUserChat(XMPPConnection xmppConnection,String roomName,String password){
+    public static  MultiUserChat joinMultiUserChat(XMPPConnection xmppConnection,String roomName,String password,PacketListener packetListener){
         try {
             // 使用XMPPConnection创建一个MultiUserChat窗口
             MultiUserChat muc = new MultiUserChat(xmppConnection, roomName+ "@conference." + xmppConnection.getServiceName());
@@ -669,6 +690,9 @@ public class XMPPUtil {
             // 用户加入聊天室
             muc.join(xmppConnection.getUser(), password, history, SmackConfiguration.getPacketReplyTimeout());
             Log.i("MultiUserChat", "会议室【"+roomName+"】加入成功........");
+            if(packetListener!=null){
+                muc.addMessageListener(packetListener);
+            }
             return muc;
         } catch (XMPPException e) {
             Log.e("MultiUserChat", "会议室【"+roomName+"】加入失败........");
