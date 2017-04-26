@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FAD076FA-7F49-452F-A686-1FF19871FBF6}</ProjectGuid>
+    <ProjectGuid>{13FB0672-460F-42AF-90C9-DD9DECFC68C1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmackNetDemoTest</RootNamespace>
-    <AssemblyName>SmackNetDemoTest</AssemblyName>
+    <RootNamespace>AgsXMPPDemoTest</RootNamespace>
+    <AssemblyName>AgsXMPPDemoTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -52,12 +52,6 @@
   <ItemGroup>
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SmackNetDemo\SmackNetDemo.csproj">
-      <Project>{30bdea74-249b-4b21-816c-42cb8c7ea11e}</Project>
-      <Name>SmackNetDemo</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
