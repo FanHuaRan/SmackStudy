@@ -5,8 +5,11 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.RosterEntry;
@@ -38,7 +41,6 @@ import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.LastActivity;
 import org.jivesoftware.smackx.packet.OfflineMessageInfo;
@@ -87,7 +89,7 @@ public class XMPPUtil {
     /**
      * 服务器地址
      */
-    private static final String SERVERADDRESS = "10.0.2.2";
+    private static final String SERVERADDRESS = "101.200.55.205";
     /**
      * 端口
      */
@@ -107,8 +109,8 @@ public class XMPPUtil {
      * @param connectionListener 连接监听器
      * @return
      */
-    public static XMPPConnection getXMPPConnection(ConnectionListener connectionListener) {
-        return getXMPPConnection(30, false, false, true, ConnectionConfiguration.SecurityMode.disabled, connectionListener);
+    public static XMPPConnection createXMPPConnection(ConnectionListener connectionListener) {
+        return createXMPPConnection(30, false, false, true, ConnectionConfiguration.SecurityMode.disabled, connectionListener);
     }
 
     /**
@@ -121,8 +123,8 @@ public class XMPPUtil {
      * @param connectionListener  连接监听器
      * @return
      */
-    public static XMPPConnection getXMPPConnection(int connectionTimeOut, boolean reconnectionAllowed, boolean isPresence, boolean debugEnable,
-                                                   ConnectionConfiguration.SecurityMode securityMode, ConnectionListener connectionListener) {
+    public static XMPPConnection createXMPPConnection(int connectionTimeOut, boolean reconnectionAllowed, boolean isPresence, boolean debugEnable,
+                                                      ConnectionConfiguration.SecurityMode securityMode, ConnectionListener connectionListener) {
         //设置是否开启DEBUG模式
         XMPPConnection.DEBUG_ENABLED = debugEnable;
         //设置连接地址、端口
@@ -165,7 +167,7 @@ public class XMPPUtil {
      * 关闭连接
      * @param xmppConnection
      */
-    public static void closeConnection(XMPPConnection xmppConnection) {
+    public static void relaseXMPPConnection(XMPPConnection xmppConnection) {
         if (xmppConnection != null) {
             if (xmppConnection.isConnected()) {
                 xmppConnection.disconnect();
@@ -263,13 +265,43 @@ public class XMPPUtil {
      * @return
      */
     public static XMPPConnection login(String userName, String password, ConnectionListener connectionListener) {
-        XMPPConnection connection = getXMPPConnection(connectionListener);
+        XMPPConnection connection = createXMPPConnection(connectionListener);
         if (connectServer(connection) && login(connection, userName, password)) {
             return connection;
         }
         return null;
     }
 
+    /**
+     * 创建聊天
+     * @param xmppConnection
+     * @param toUser
+     * @param messageListener
+     * @return
+     */
+    public static Chat createChat(XMPPConnection xmppConnection,String toUser,MessageListener messageListener){
+        // 获取当前登陆用户的聊天管理器
+        ChatManager chatManager = xmppConnection.getChatManager();
+        // 为指定用户创建一个chat，MyMessageListeners用于监听对方发过来的消息  */
+        Chat chat = chatManager.createChat(toUser+"@" + SERVERNAME, messageListener);
+        return chat;
+    }
+
+    /**
+     * 发送消息
+     * @param chat
+     * @param message
+     * @return
+     */
+    public static boolean sendMessage(Chat chat, String message){
+        try {
+            chat.sendMessage(message);
+            return true;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     /**
      * 设置用户状态
      * @param xmppConnection
@@ -294,7 +326,7 @@ public class XMPPUtil {
      * @param xmppConnection
      * @return
      */
-    public static List<RosterGroup> getGroups(XMPPConnection xmppConnection) {
+    public static List<RosterGroup> getAllRosterGroup(XMPPConnection xmppConnection) {
         List<RosterGroup> rosterGroups = new ArrayList<>();
         Iterator<RosterGroup> i = xmppConnection.getRoster().getGroups().iterator();
         while (i.hasNext()) {
@@ -309,7 +341,7 @@ public class XMPPUtil {
      * @param groupName      组名
      * @return
      */
-    public static List<RosterEntry> getEntriesByGroup(XMPPConnection xmppConnection, String groupName) {
+    public static List<RosterEntry> getRosterEntrysForGroup(XMPPConnection xmppConnection, String groupName) {
         List<RosterEntry> rosterEntries = new ArrayList<RosterEntry>();
         RosterGroup rosterGroup = xmppConnection.getRoster().getGroup(groupName);
         Collection<RosterEntry> rosterEntry = rosterGroup.getEntries();
@@ -325,7 +357,7 @@ public class XMPPUtil {
      * @param xmppConnection
      * @return
      */
-    public static List<RosterEntry> getAllEntries(XMPPConnection xmppConnection) {
+    public static List<RosterEntry> getAllRosterEntry(XMPPConnection xmppConnection) {
         List<RosterEntry> rosterEntries = new ArrayList<RosterEntry>();
         Collection<RosterEntry> rosterEntry = xmppConnection.getRoster().getEntries();
         Iterator<RosterEntry> i = rosterEntry.iterator();
@@ -746,7 +778,7 @@ public class XMPPUtil {
      * @param xmppConnection
      * @return
      */
-    public Map<String, List<HashMap<String, String>>> getOfflnMessage(XMPPConnection xmppConnection) {
+    public  static  Map<String, List<HashMap<String, String>>> getOfflnMessage(XMPPConnection xmppConnection) {
         Map<String, List<HashMap<String, String>>> offlineMsgs = null;
         try {
             OfflineMessageManager offlineManager = new OfflineMessageManager(xmppConnection);
